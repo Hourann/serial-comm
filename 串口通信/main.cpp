@@ -1,25 +1,36 @@
 #include "SerialPort.h"
+#include <string>
 #include <iostream>
+using namespace std;
+
 int main() {
-	using namespace std;
 	CSerialPort mySerialPort;
-	char received;
-	if (!mySerialPort.InitPort(3)) {
-		cout << "initPort fail!" << endl;
+
+	char lpComm[5];
+	cout << "请设置端口号（数字）：";
+	string sData;
+	int iComm;
+	cin >> iComm;
+	sprintf(lpComm, "com%d", iComm);	//将端口号赋给szComm
+	cout << "请设置模式【读(r)|写(w)】：";
+	char cMode;
+	cin >> cMode;
+	if (!mySerialPort.InitPort(iComm)) {
+		cout << "端口打开失败" << endl;
+		system("pause");
+		return 1;
 	}
-	else {
-		cout << "initPort success!" << endl;
+	if (cMode == 'r') {			//读模式
+		mySerialPort.OpenListenThread();
+		cout << "正在侦听端口，如需结束，请按q退出";
+		system("pause");
 	}
-	if (!mySerialPort.OpenListenThread()) {
-		cout << "OpenListenThread fail!" << endl;
-	}
-	else {
-		cout << "OpenListenTread success!" << endl;
+	else if (cMode == 'w') {	//写模式
 		while (1) {
-			mySerialPort.ReadChar(received);
-			cout << received;
+			cin >> sData;
+			mySerialPort.WriteData((unsigned char *)sData.c_str(), sData.length());
 		}
+
 	}
-	system("pause");
 	return 0;
 }
